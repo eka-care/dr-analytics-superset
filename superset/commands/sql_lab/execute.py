@@ -115,10 +115,10 @@ class ExecuteSqlCommand(BaseCommand):
                 "status": status,
                 "payload": self._execution_context_convertor.serialize_payload(),
             }
-        except (SupersetErrorException, SupersetErrorsException) as ex:
+        except (SupersetErrorException, SupersetErrorsException):
             # to make sure we raising the original
             # SupersetErrorsException || SupersetErrorsException
-            raise ex
+            raise
         except Exception as ex:
             raise SqlLabException(self._execution_context, exception=ex) from ex
 
@@ -144,11 +144,13 @@ class ExecuteSqlCommand(BaseCommand):
         try:
             logger.info("Triggering query_id: %i", query.id)
 
+            # Necessary to check access before rendering the Jinjafied query as the
+            # some Jinja macros execute statements upon rendering.
+            self._validate_access(query)
             self._execution_context.set_query(query)
             rendered_query = self._sql_query_render.render(self._execution_context)
             validate_rendered_query = copy.copy(query)
             validate_rendered_query.sql = rendered_query
-            self._validate_access(validate_rendered_query)
             self._set_query_limit_if_required(rendered_query)
             self._query_dao.update(
                 query, {"limit": self._execution_context.query.limit}
@@ -156,9 +158,9 @@ class ExecuteSqlCommand(BaseCommand):
             return self._sql_json_executor.execute(
                 self._execution_context, rendered_query, self._log_params
             )
-        except Exception as ex:
+        except Exception:
             self._query_dao.update(query, {"status": QueryStatus.FAILED})
-            raise ex
+            raise
 
     def _get_the_query_db(self) -> Database:
         mydb: Any = self._database_dao.find_by_id(self._execution_context.database_id)

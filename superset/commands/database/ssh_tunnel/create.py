@@ -23,11 +23,13 @@ from marshmallow import ValidationError
 from superset.commands.base import BaseCommand
 from superset.commands.database.ssh_tunnel.exceptions import (
     SSHTunnelCreateFailedError,
+    SSHTunnelDatabasePortError,
     SSHTunnelInvalidError,
     SSHTunnelRequiredFieldValidationError,
 )
 from superset.daos.database import SSHTunnelDAO
 from superset.daos.exceptions import DAOCreateFailedError
+from superset.databases.utils import make_url_safe
 from superset.extensions import event_logger
 from superset.models.core import Database
 
@@ -35,19 +37,27 @@ logger = logging.getLogger(__name__)
 
 
 class CreateSSHTunnelCommand(BaseCommand):
+    _database: Database
+
     def __init__(self, database: Database, data: dict[str, Any]):
         self._properties = data.copy()
         self._properties["database"] = database
+        self._database = database
 
     def run(self) -> Model:
+        """
+        Create an SSH tunnel.
+
+        :returns: The SSH tunnel model
+        :raises SSHTunnelCreateFailedError: If the model creation fails
+        :raises SSHTunnelInvalidError: If the configuration are invalid
+        """
+
         try:
             self.validate()
-            ssh_tunnel = SSHTunnelDAO.create(attributes=self._properties, commit=False)
-            return ssh_tunnel
+            return SSHTunnelDAO.create(attributes=self._properties, commit=False)
         except DAOCreateFailedError as ex:
             raise SSHTunnelCreateFailedError() from ex
-        except SSHTunnelInvalidError as ex:
-            raise ex
 
     def validate(self) -> None:
         # TODO(hughhh): check to make sure the server port is not localhost
@@ -57,16 +67,22 @@ class CreateSSHTunnelCommand(BaseCommand):
         server_address: Optional[str] = self._properties.get("server_address")
         server_port: Optional[int] = self._properties.get("server_port")
         username: Optional[str] = self._properties.get("username")
+        password: Optional[str] = self._properties.get("password")
         private_key: Optional[str] = self._properties.get("private_key")
         private_key_password: Optional[str] = self._properties.get(
             "private_key_password"
         )
+        url = make_url_safe(self._database.sqlalchemy_uri)
+        if not url.port:
+            raise SSHTunnelDatabasePortError()
         if not server_address:
             exceptions.append(SSHTunnelRequiredFieldValidationError("server_address"))
         if not server_port:
             exceptions.append(SSHTunnelRequiredFieldValidationError("server_port"))
         if not username:
             exceptions.append(SSHTunnelRequiredFieldValidationError("username"))
+        if not private_key and not password:
+            exceptions.append(SSHTunnelRequiredFieldValidationError("password"))
         if private_key_password and private_key is None:
             exceptions.append(SSHTunnelRequiredFieldValidationError("private_key"))
         if exceptions:

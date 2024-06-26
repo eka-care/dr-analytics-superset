@@ -16,7 +16,6 @@
 # under the License.
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
@@ -24,11 +23,12 @@ from typing import TYPE_CHECKING
 from flask.ctx import AppContext
 
 from superset.extensions import db
+from superset.utils import json
 from tests.integration_tests.key_value.commands.fixtures import (
     ID_KEY,
     JSON_CODEC,
     JSON_VALUE,
-    key_value_entry,
+    key_value_entry,  # noqa: F401
     RESOURCE,
     UUID_KEY,
 )
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from superset.key_value.models import KeyValueEntry
 
 
-def test_get_id_entry(app_context: AppContext, key_value_entry: KeyValueEntry) -> None:
+def test_get_id_entry(app_context: AppContext, key_value_entry: KeyValueEntry) -> None:  # noqa: F811
     from superset.commands.key_value.get import GetKeyValueCommand
 
     value = GetKeyValueCommand(resource=RESOURCE, key=ID_KEY, codec=JSON_CODEC).run()
@@ -45,7 +45,8 @@ def test_get_id_entry(app_context: AppContext, key_value_entry: KeyValueEntry) -
 
 
 def test_get_uuid_entry(
-    app_context: AppContext, key_value_entry: KeyValueEntry
+    app_context: AppContext,
+    key_value_entry: KeyValueEntry,  # noqa: F811
 ) -> None:
     from superset.commands.key_value.get import GetKeyValueCommand
 
@@ -55,7 +56,7 @@ def test_get_uuid_entry(
 
 def test_get_id_entry_missing(
     app_context: AppContext,
-    key_value_entry: KeyValueEntry,
+    key_value_entry: KeyValueEntry,  # noqa: F811
 ) -> None:
     from superset.commands.key_value.get import GetKeyValueCommand
 
@@ -75,7 +76,7 @@ def test_get_expired_entry(app_context: AppContext) -> None:
         expires_on=datetime.now() - timedelta(days=1),
     )
     db.session.add(entry)
-    db.session.commit()
+    db.session.flush()
     value = GetKeyValueCommand(resource=RESOURCE, key=ID_KEY, codec=JSON_CODEC).run()
     assert value is None
     db.session.delete(entry)
@@ -95,7 +96,7 @@ def test_get_future_expiring_entry(app_context: AppContext) -> None:
         expires_on=datetime.now() + timedelta(days=1),
     )
     db.session.add(entry)
-    db.session.commit()
+    db.session.flush()
     value = GetKeyValueCommand(resource=RESOURCE, key=id_, codec=JSON_CODEC).run()
     assert value == JSON_VALUE
     db.session.delete(entry)
