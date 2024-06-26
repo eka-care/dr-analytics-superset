@@ -292,7 +292,9 @@ def handle_api_exception(
 def check_sess_token():
     token = request.headers.get("jwt-payload")
     referrer = request.headers.get("Referer")
-    print("========referrer=========", referrer)
+    print(f"========referrer========={referrer}")
+    guest_token = request.headers.get("X-Guesttoken")
+    print(f"========guest_token========={guest_token}")
     if token and isinstance(token, str):
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
