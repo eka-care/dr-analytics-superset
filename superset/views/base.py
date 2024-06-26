@@ -296,6 +296,7 @@ def check_sess_token():
     guest_token = request.headers.get("X-Guesttoken")
     print(f"========guest_token========={guest_token}")
     if token and isinstance(token, str):
+        print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
         b_id = token.get("b-id", "")
