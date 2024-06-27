@@ -65,6 +65,7 @@ from superset.utils.log import DBEventLogger
 from superset.utils.logging_configurator import DefaultLoggingConfigurator
 from superset.security.manager import JWTSecurityManager
 from superset.security.custom_initializer import MySupsersetAppInitializer
+from superset.utils.urls import get_url_host
 
 logger = logging.getLogger(__name__)
 
@@ -1698,7 +1699,7 @@ GUEST_TOKEN_JWT_ALGO = "HS256"
 GUEST_TOKEN_HEADER_NAME = "X-GuestToken"
 GUEST_TOKEN_JWT_EXP_SECONDS = 3*60*60  # 3 hours
 # Guest token audience for the embedded superset, either string or callable
-GUEST_TOKEN_JWT_AUDIENCE: Callable[[], str] | str | None = None
+GUEST_TOKEN_JWT_AUDIENCE: Callable[[], str] | str | None = get_url_host()
 
 # A SQL dataset health check. Note if enabled it is strongly advised that the callable
 # be memoized to aid with performance, i.e.,

@@ -304,7 +304,7 @@ def check_sess_token():
         print(f"=========guest_token_decoded========={guest_token_decoded}")
         doc_id = guest_token_decoded.get("doc-id", "")
         guest_user_username = doc_id + '@dummyanalytics.com'
-        guest_user = db.session.query(User).filter(User.username == guest_user_id).one_or_none()
+        guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
         print(f"=========guest_user========={guest_user}")
         session_user_username = None
         if session:
