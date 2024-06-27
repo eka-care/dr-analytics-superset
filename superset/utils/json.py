@@ -228,7 +228,6 @@ def dumps(  # pylint: disable=too-many-arguments
 def loads(
     obj: Union[bytes, bytearray, str],
     encoding: Union[str, None] = None,
-    allow_nan: bool = True,
     object_hook: Union[Callable[[dict[Any, Any]], Any], None] = None,
 ) -> Any:
     """
@@ -236,7 +235,6 @@ def loads(
 
     :param obj: The deserializable object
     :param encoding: determines the encoding used to interpret the obj
-    :param allow_nan: if True it will allow the parser to accept nan values
     :param object_hook: function that will be called to decode objects values
     :returns: A Python object deserialized from string
     """
@@ -244,7 +242,6 @@ def loads(
         return simplejson.loads(
             obj,
             encoding=encoding,
-            allow_nan=allow_nan,
             object_hook=object_hook,
         )
     except JSONDecodeError as ex:
