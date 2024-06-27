@@ -1,7 +1,7 @@
 # Python unit tests
 name: Python-Unit
 
-# on:
+ on:
 #   push:
 #     branches:
 #       - "master"

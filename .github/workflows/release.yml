@@ -1,6 +1,6 @@
 name: release-workflow
 
-#on:
+on:
 #  push:
 #    branches:
 #      - "master"

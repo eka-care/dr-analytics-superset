@@ -1,6 +1,6 @@
 name: supersetbot orglabel based on author
 
-#on:
+on:
 #  issues:
 #    types: [created, edited]
 #

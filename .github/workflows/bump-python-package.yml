@@ -2,18 +2,18 @@ name: Bump Python Package
 
 on:
   # Can be triggered manually
-  workflow_dispatch:
-    inputs:
-      package:
-        required: false
-        description: The python package to bump (all if empty)
-      group:
-        required: false
-        description: The optional dependency group to bump (as defined in pyproject.toml)
-      limit:
-        required: true
-        description: Max number of PRs to open (0 for no limit)
-        default: 5
+#  workflow_dispatch:
+#    inputs:
+#      package:
+#        required: false
+#        description: The python package to bump (all if empty)
+#      group:
+#        required: false
+#        description: The optional dependency group to bump (as defined in pyproject.toml)
+#      limit:
+#        required: true
+#        description: Max number of PRs to open (0 for no limit)
+#        default: 5
 
 jobs:
   bump-python-package:

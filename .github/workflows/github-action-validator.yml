@@ -1,6 +1,6 @@
 name: Validate All GitHub Actions
 
-#on:
+on:
 #  push:
 #    branches:
 #      - "master"
