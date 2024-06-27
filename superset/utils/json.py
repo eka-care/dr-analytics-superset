@@ -228,7 +228,7 @@ def dumps(  # pylint: disable=too-many-arguments
 def loads(
     obj: Union[bytes, bytearray, str],
     encoding: Union[str, None] = None,
-    allow_nan: bool = False,
+    allow_nan: bool = True,
     object_hook: Union[Callable[[dict[Any, Any]], Any], None] = None,
 ) -> Any:
     """
