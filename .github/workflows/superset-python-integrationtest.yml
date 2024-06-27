@@ -1,7 +1,7 @@
 # Python integration tests
 name: Python-Integration
 
-#on:
+on:
 #  push:
 #    branches:
 #      - "master"

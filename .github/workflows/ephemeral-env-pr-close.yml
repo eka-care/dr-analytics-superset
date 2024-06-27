@@ -1,6 +1,6 @@
 name: Cleanup ephemeral envs (PR close)
 
-#on:
+on:
 #  pull_request_target:
 #    types: [closed]
 

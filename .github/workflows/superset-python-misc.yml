@@ -1,7 +1,7 @@
 # Python Misc unit tests
 name: Python Misc
 
-#on:
+on:
 #  push:
 #    branches:
 #      - "master"

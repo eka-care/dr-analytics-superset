@@ -1,6 +1,6 @@
 name: Hold Label Check
 
-#on:
+on:
 #  pull_request:
 #    types: [labeled, unlabeled, opened, reopened, synchronize]
 

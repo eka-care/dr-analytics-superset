@@ -1,5 +1,5 @@
 name: Check DB migration conflict
-#on:
+on:
 #  push:
 #    paths:
 #      - "superset/migrations/**"

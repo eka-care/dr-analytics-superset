@@ -1,10 +1,10 @@
 name: Cancel Duplicates
 on:
-  workflow_run:
-    workflows:
-      - "Miscellaneous"
-    types:
-      - requested
+#  workflow_run:
+#    workflows:
+#      - "Miscellaneous"
+#    types:
+#      - requested
 
 jobs:
   cancel-duplicate-runs:
