@@ -35,11 +35,11 @@ x-superset-volumes: &superset-volumes
   - superset_home:/app/superset_home
   - ./tests:/app/tests
 
-x-common-build: &common-build
-  context: .
-  target: dev
-  cache_from:
-    - apache/superset-cache:3.10-slim-bookworm
+    #x-common-build: &common-build
+    #context: .
+    #target: dev
+    #cache_from:
+    #- apache/superset-cache:3.10-slim-bookworm
 
 services:
   nginx:
@@ -87,13 +87,14 @@ services:
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
 
   superset:
+    image: *superset-image
     env_file:
       - path: docker/.env # default
         required: true
       - path: docker/.env-local # optional override
         required: false
-    build:
-      <<: *common-build
+          #build:
+          #   <<: *common-build
     container_name: superset_app
     command: ["/app/docker/docker-bootstrap.sh", "app"]
     restart: unless-stopped
@@ -141,8 +142,9 @@ services:
       - REDIS_SSL=false
 
   superset-init:
-    build:
-      <<: *common-build
+    # build:
+    # <<: *common-build
+    image: *superset-image    
     container_name: superset_init
     command: ["/app/docker/docker-init.sh"]
     env_file:
@@ -175,8 +177,9 @@ services:
     volumes: *superset-volumes
 
   superset-worker:
-    build:
-      <<: *common-build
+    # build:
+    #  <<: *common-build
+    image: *superset-image
     container_name: superset_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     env_file:
@@ -199,8 +202,9 @@ services:
     # mem_reservation: 128M
 
   superset-worker-beat:
-    build:
-      <<: *common-build
+    # build:
+    # <<: *common-build
+    image: *superset-image 
     container_name: superset_worker_beat
     command: ["/app/docker/docker-bootstrap.sh", "beat"]
     env_file:
@@ -216,8 +220,9 @@ services:
       disable: true
 
   superset-tests-worker:
-    build:
-      <<: *common-build
+    # build:
+    #  <<: *common-build
+    image: *superset-image
     container_name: superset_tests_worker
     command: ["/app/docker/docker-bootstrap.sh", "worker"]
     env_file:
