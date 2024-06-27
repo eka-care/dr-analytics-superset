@@ -1,2 +1,2 @@
-FROM apachesuperset.docker.scarf.sh/apache/superset:${TAG:-master-dev}
+FROM apachesuperset.docker.scarf.sh/apache/superset:${UPSTREAM_VERSION}
 COPY --chown=superset superset/ /app/superset/
