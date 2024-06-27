@@ -1,8 +1,8 @@
 name: Cleanup ephemeral envs (PR close)
 
-on:
-  pull_request_target:
-    types: [closed]
+#on:
+#  pull_request_target:
+#    types: [closed]
 
 jobs:
   config:

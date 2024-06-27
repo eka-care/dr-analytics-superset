@@ -1,15 +1,15 @@
 name: Embedded SDK PR Checks
 
-on:
-  pull_request:
-    paths:
-      - "superset-embedded-sdk/**"
-    types: [synchronize, opened, reopened, ready_for_review]
-
-# cancel previous workflow jobs for PRs
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
+#on:
+#  pull_request:
+#    paths:
+#      - "superset-embedded-sdk/**"
+#    types: [synchronize, opened, reopened, ready_for_review]
+#
+## cancel previous workflow jobs for PRs
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+#  cancel-in-progress: true
 
 jobs:
   embedded-sdk-test:

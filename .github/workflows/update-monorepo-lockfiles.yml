@@ -1,13 +1,13 @@
 name: Update Lockfiles for Dependabot Monorepo PRs
 
-on:
-  pull_request:
-    paths:
-      - 'superset-frontend/packages/**/package.json'
-      - 'superset-frontend/plugins/**/package.json'
-    types: [opened, synchronize, reopened]
-  issue_comment:
-    types: [created]
+#on:
+#  pull_request:
+#    paths:
+#      - 'superset-frontend/packages/**/package.json'
+#      - 'superset-frontend/plugins/**/package.json'
+#    types: [opened, synchronize, reopened]
+#  issue_comment:
+#    types: [created]
 
 # cancel previous workflow jobs for PRs
 concurrency:
