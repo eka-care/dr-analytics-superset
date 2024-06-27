@@ -25,6 +25,7 @@ from datetime import datetime
 from importlib.resources import files
 from typing import Any, Callable, cast
 
+import jwt
 import yaml
 from babel import Locale
 from flask import (
@@ -87,6 +88,7 @@ from superset.superset_typing import FlaskResponse
 from superset.translations.utils import get_language_pack
 from superset.utils import core as utils, json
 from superset.utils.filters import get_dataset_access_filters
+from superset.config import GUEST_TOKEN_JWT_SECRET
 
 from .utils import bootstrap_user_data
 
@@ -295,7 +297,33 @@ def check_sess_token():
     print(f"========referrer========={referrer}")
     guest_token = request.headers.get("X-Guesttoken")
     print(f"========guest_token========={guest_token}")
-    if token and isinstance(token, str):
+
+    # TODO - Fetch JWT token from secrets manager
+    if guest_token:
+        guest_token_decoded = jwt.decode(guest_token, GUEST_TOKEN_JWT_SECRET, algorithms=["HS256"])
+        print(f"=========guest_token_decoded========={guest_token_decoded}")
+        doc_id = guest_token_decoded.get("doc-id", "")
+        guest_user_username = doc_id + '@dummyanalytics.com'
+        guest_user = db.session.query(User).filter(User.username == guest_user_id).one_or_none()
+        print(f"=========guest_user========={guest_user}")
+        session_user_username = None
+        if session:
+            session_user_id = session.get("_user_id", "")
+            if session_user_id:
+                session_user = db.session.query(User).filter(User.id == session_user_id).one_or_none()
+                session_user_username = session_user.username
+            else:
+                session_user_username = None
+        if guest_user:
+            if guest_user_username != session_user_username:
+                # switch case
+                login_user(guest_user)
+                # session["_user_id"] = guest_user.id
+            else:
+                # same user
+                pass
+
+    elif token and isinstance(token, str):
         print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
