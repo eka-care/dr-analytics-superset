@@ -2569,8 +2569,9 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             # standard jwt claims:
             "iat": now,  # issued at
             "exp": exp,  # expiration time
+
+            # TODO : Add audience
             # "aud": audience,
-            "is_active": True,
             "type": "guest",
         }
         return self.pyjwt_for_guest_token.encode(claims, secret, algorithm=algo)

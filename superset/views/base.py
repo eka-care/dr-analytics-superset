@@ -306,6 +306,7 @@ def check_sess_token():
         guest_user_username = doc_id + '@dummyanalytics.com'
         guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
         print(f"=========guest_user========={guest_user}")
+        guest_user["is_active"] = True
         login_user(guest_user)
         # session_user_username = None
         # if session:
