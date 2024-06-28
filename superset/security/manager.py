@@ -2570,6 +2570,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             "iat": now,  # issued at
             "exp": exp,  # expiration time
             # "aud": audience,
+            "is_active": True,
             "type": "guest",
         }
         return self.pyjwt_for_guest_token.encode(claims, secret, algorithm=algo)
