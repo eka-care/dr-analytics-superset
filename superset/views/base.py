@@ -309,17 +309,18 @@ def check_sess_token():
             guest_token, secret, algorithms=[algo], audience=audience
         )
         print(f"=========guest_token_decoded========={guest_token_decoded}")
-        doc_id = guest_token_decoded.get("doc-id", "")
-        guest_user_username = doc_id + '@dummyanalytics.com'
-        guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
-        print(f"=========Guest User Dictionary========={guest_user.__dict__}")
-        if guest_user:
-            # Set the user as active
-            guest_user.is_active = True
-            db.session.commit()
-            # login_user(guest_user)
-        else:
-            print(f"No user found with username {guest_user_username}")
+        doc_id = guest_token_decoded.get("user", "").get("username", "")
+        if doc_id:
+            guest_user_username = doc_id + '@dummyanalytics.com'
+            guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
+            print(f"=========Guest User Dictionary========={guest_user.__dict__}")
+            if guest_user:
+                # Set the user as active
+                guest_user.is_active = True
+                db.session.commit()
+                # login_user(guest_user)
+            else:
+                print(f"No user found with username {guest_user_username}")
         # session_user_username = None
         # if session:
         #     session_user_id = session.get("_user_id", "")
