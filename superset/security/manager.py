@@ -2569,8 +2569,7 @@ class SupersetSecurityManager(  # pylint: disable=too-many-public-methods
             # standard jwt claims:
             "iat": now,  # issued at
             "exp": exp,  # expiration time
-            # "aud": audience,
-            "aud": "https://dr-analytics.eka.care/",
+            "aud": audience,
             "type": "guest",
         }
         return self.pyjwt_for_guest_token.encode(claims, secret, algorithm=algo)
