@@ -301,26 +301,26 @@ def check_sess_token():
     print(f"========guest_token========={guest_token}")
 
     # TODO - Fetch JWT token from secrets manager
-    # if guest_token:
-    #     secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
-    #     algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
-    #     audience = security_manager._get_guest_token_jwt_audience()
-    #     guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
-    #         guest_token, secret, algorithms=[algo], audience=audience
-    #     )
-    #     print(f"=========guest_token_decoded========={guest_token_decoded}")
-    #     doc_id = guest_token_decoded.get("user", "").get("username", "")
-    #     if doc_id:
-    #         guest_user_username = doc_id + '@dummyanalytics.com'
-    #         guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
-    #         print(f"=========Guest User Dictionary========={guest_user.__dict__}")
-    #         if guest_user:
-    #             login_user(guest_user)
-    #         else:
-    #             flash("Unable to login guest user")
-    #             redirect("/login")
+    if guest_token:
+        secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
+        algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
+        audience = security_manager._get_guest_token_jwt_audience()
+        guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
+            guest_token, secret, algorithms=[algo], audience=audience
+        )
+        print(f"=========guest_token_decoded========={guest_token_decoded}")
+        doc_id = guest_token_decoded.get("user", "").get("username", "")
+        if doc_id:
+            guest_user_username = doc_id + '@dummyanalytics.com'
+            guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
+            print(f"=========Guest User Dictionary========={guest_user.__dict__}")
+            if guest_user:
+                login_user(guest_user)
+            else:
+                flash("Unable to login guest user")
+                redirect("/login")
 
-    if token and isinstance(token, str):
+    elif token and isinstance(token, str):
         print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
