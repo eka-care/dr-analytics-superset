@@ -305,7 +305,7 @@ def check_sess_token():
         secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
         algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
         audience = security_manager._get_guest_token_jwt_audience()
-        guest_token_decoded = security_manager.parse_jwt_(
+        guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
             guest_token, secret, algorithms=[algo], audience=audience
         )
         print(f"=========guest_token_decoded========={guest_token_decoded}")
