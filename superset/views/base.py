@@ -301,44 +301,26 @@ def check_sess_token():
     print(f"========guest_token========={guest_token}")
 
     # TODO - Fetch JWT token from secrets manager
-    if guest_token:
-        secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
-        algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
-        audience = security_manager._get_guest_token_jwt_audience()
-        guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
-            guest_token, secret, algorithms=[algo], audience=audience
-        )
-        print(f"=========guest_token_decoded========={guest_token_decoded}")
-        doc_id = guest_token_decoded.get("user", "").get("username", "")
-        if doc_id:
-            guest_user_username = doc_id + '@dummyanalytics.com'
-            guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
-            print(f"=========Guest User Dictionary========={guest_user.__dict__}")
-            if guest_user:
-                # Set the user as active
-                guest_user.is_active = True
-                db.session.commit()
-                # login_user(guest_user)
-            else:
-                print(f"No user found with username {guest_user_username}")
-        # session_user_username = None
-        # if session:
-        #     session_user_id = session.get("_user_id", "")
-        #     if session_user_id:
-        #         session_user = db.session.query(User).filter(User.id == session_user_id).one_or_none()
-        #         session_user_username = session_user.username
-        #     else:
-        #         session_user_username = None
-        # if guest_user:
-        #     if guest_user_username != session_user_username:
-        #         # switch case
-        #         login_user(guest_user)
-        #         # session["_user_id"] = guest_user.id
-        #     else:
-        #         # same user
-        #         pass
+    # if guest_token:
+    #     secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
+    #     algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
+    #     audience = security_manager._get_guest_token_jwt_audience()
+    #     guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
+    #         guest_token, secret, algorithms=[algo], audience=audience
+    #     )
+    #     print(f"=========guest_token_decoded========={guest_token_decoded}")
+    #     doc_id = guest_token_decoded.get("user", "").get("username", "")
+    #     if doc_id:
+    #         guest_user_username = doc_id + '@dummyanalytics.com'
+    #         guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
+    #         print(f"=========Guest User Dictionary========={guest_user.__dict__}")
+    #         if guest_user:
+    #             login_user(guest_user)
+    #         else:
+    #             flash("Unable to login guest user")
+    #             redirect("/login")
 
-    elif token and isinstance(token, str):
+    if token and isinstance(token, str):
         print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
