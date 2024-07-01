@@ -292,6 +292,8 @@ def handle_api_exception(
 
 @current_app.before_request
 def check_sess_token():
+    from superset.extensions import security_manager
+
     token = request.headers.get("jwt-payload")
     referrer = request.headers.get("Referer")
     print(f"========referrer========={referrer}")
@@ -300,7 +302,12 @@ def check_sess_token():
 
     # TODO - Fetch JWT token from secrets manager
     if guest_token:
-        guest_token_decoded = jwt.decode(guest_token, GUEST_TOKEN_JWT_SECRET, algorithms=["HS256"])
+        secret = current_app.config["GUEST_TOKEN_JWT_SECRET"]
+        algo = current_app.config["GUEST_TOKEN_JWT_ALGO"]
+        audience = security_manager._get_guest_token_jwt_audience()
+        guest_token_decoded = security_manager.parse_jwt_(
+            guest_token, secret, algorithms=[algo], audience=audience
+        )
         print(f"=========guest_token_decoded========={guest_token_decoded}")
         doc_id = guest_token_decoded.get("doc-id", "")
         guest_user_username = doc_id + '@dummyanalytics.com'
