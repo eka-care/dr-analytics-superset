@@ -1,6 +1,6 @@
 name: Ephemeral env workflow
 
-on:
+#on:
 #  issue_comment:
 #    types: [created]
 

@@ -1,6 +1,6 @@
 name: Prefer TypeScript
 
-on:
+#on:
 #  push:
 #    branches:
 #      - "master"

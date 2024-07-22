@@ -1,6 +1,6 @@
 name: Upload Technical Debt Metrics to Google Sheets
 
-on:
+#on:
 #  push:
 #    branches:
 #      - master

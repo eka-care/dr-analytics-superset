@@ -1,6 +1,6 @@
 name: Docs Testing
 
-on:
+#on:
 #  pull_request:
 #    paths:
 #      - "docs/**"

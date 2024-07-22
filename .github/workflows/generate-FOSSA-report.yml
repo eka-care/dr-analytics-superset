@@ -1,6 +1,6 @@
 name: Generate FOSSA report
 
-on:
+#on:
 #  push:
 #    branches:
 #      - "master"

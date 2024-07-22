@@ -1,6 +1,6 @@
 name: Embedded SDK Release
 
-on:
+#on:
 #  push:
 #    branches:
 #      - "master"

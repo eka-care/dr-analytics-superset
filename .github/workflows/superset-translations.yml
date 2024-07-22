@@ -1,6 +1,6 @@
 name: Translations
 
-on:
+#on:
 #  push:
 #    branches:
 #      - "master"

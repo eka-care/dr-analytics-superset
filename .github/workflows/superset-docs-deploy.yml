@@ -1,6 +1,6 @@
 name: Docs Deployment
 
-on:
+#on:
 #  push:
 #    paths:
 #      - "docs/**"

@@ -1,6 +1,6 @@
 name: Update Lockfiles for Dependabot Monorepo PRs
 
-on:
+#on:
 #  pull_request:
 #    paths:
 #      - 'superset-frontend/packages/**/package.json'

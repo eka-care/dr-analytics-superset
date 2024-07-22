@@ -1,6 +1,6 @@
 name: Embedded SDK PR Checks
 
-on:
+#on:
 #  pull_request:
 #    paths:
 #      - "superset-embedded-sdk/**"

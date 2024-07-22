@@ -1,5 +1,5 @@
 name: Cancel Duplicates
-on:
+#on:
 #  workflow_run:
 #    workflows:
 #      - "Miscellaneous"

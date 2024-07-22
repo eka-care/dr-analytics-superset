@@ -1,6 +1,6 @@
 name: Publish a Release
 
-on:
+#on:
 #  release:
 #    types: [published, edited]
 #

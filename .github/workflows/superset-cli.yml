@@ -1,6 +1,6 @@
 name: Superset CLI tests
 
-on:
+#on:
 #  push:
 #    branches:
 #      - "master"

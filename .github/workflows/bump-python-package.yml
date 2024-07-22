@@ -1,6 +1,6 @@
 name: Bump Python Package
 
-on:
+#on:
   # Can be triggered manually
 #  workflow_dispatch:
 #    inputs:

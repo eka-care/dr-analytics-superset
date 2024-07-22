@@ -1,6 +1,6 @@
 name: Applitools Cypress
 
-on:
+#on:
 #  schedule:
 #    - cron: "0 1 * * *"
 
