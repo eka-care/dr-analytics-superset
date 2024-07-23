@@ -298,7 +298,7 @@ def check_sess_token():
     referrer = request.headers.get("Referer")
     print(f"========referrer========={referrer}")
     guest_token = request.headers.get("X-Guesttoken")
-    print(f"========guest_token========={guest_token}")
+    # print(f"========guest_token========={guest_token}")
 
     # TODO - Fetch JWT token from secrets manager
     if guest_token:
@@ -313,7 +313,7 @@ def check_sess_token():
         if doc_id:
             guest_user_username = doc_id + '@dummyanalytics.com'
             guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
-            print(f"=========Guest User Dictionary========={guest_user.__dict__}")
+            # print(f"=========Guest User Dictionary========={guest_user.__dict__}")
             if guest_user:
                 login_user(guest_user)
             else:
@@ -321,7 +321,7 @@ def check_sess_token():
                 redirect("/login")
 
     elif token and isinstance(token, str):
-        print(f"=========token========={token}")
+        # print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
         b_id = token.get("b-id", "")
