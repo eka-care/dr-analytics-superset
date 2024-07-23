@@ -42,7 +42,8 @@ from superset.utils.core import (
     merge_extra_filters,
     get_doc_id,
     get_business_id,
-    get_user_sk
+    get_user_sk,
+    get_business_sk
 )
 
 if TYPE_CHECKING:
@@ -92,6 +93,7 @@ class ExtraCache:
         r"current_doc_id\(.*\)|"
         r"current_business_id\(.*\)|"
         r"current_user_sk\(.*\)|"
+        r"current_business_sk\(.*\)|"
         r"current_username\(.*\)|"
         r"current_user_email\(.*\)|"
         r"cache_key_wrapper\(.*\)|"
@@ -161,6 +163,19 @@ class ExtraCache:
             :returns: The user's surrogate key
         """
         if user_sk := get_user_sk():
+            if add_to_cache_keys:
+                self.cache_key_wrapper(user_sk)
+            return user_sk
+        return None
+
+    def current_business_sk(self, add_to_cache_keys: bool = True) -> Optional[int]:
+        """
+            Return the user static to print surrogate key of the user who is currently logged in.
+
+            :param add_to_cache_keys: Whether the value should be included in the cache key
+            :returns: The user's surrogate key
+        """
+        if user_sk := get_business_sk():
             if add_to_cache_keys:
                 self.cache_key_wrapper(user_sk)
             return user_sk
@@ -599,6 +614,7 @@ class JinjaTemplateProcessor(BaseTemplateProcessor):
                 "current_business_id": partial(safe_proxy,
                                                extra_cache.current_business_id),
                 "current_user_sk": partial(safe_proxy, extra_cache.current_user_sk),
+                "current_business_sk": partial(safe_proxy, extra_cache.current_business_sk),
                 "current_user_email": partial(
                     safe_proxy, extra_cache.current_user_email
                 ),
