@@ -1298,7 +1298,7 @@ def get_user_sk() -> str | None:
             if user_sk := redis_helper.get_key(username.split("@")[0]):
                 return user_sk
             else:
-                logger.error(f"Redis Helper returned none for User {username}")
+                logger.error(f"Redis Helper returned None for User {username}")
                 return None
         else:
             logger.error("User not found")
@@ -1306,6 +1306,24 @@ def get_user_sk() -> str | None:
 
     except Exception as e:
         logger.error(f"Exception {e} occurred while running get_user_sk")
+
+
+def get_business_sk() -> str | None:
+    from superset.extensions import redis_helper
+
+    try:
+        if business_id := get_business_id():
+            if business_sk := redis_helper.get_key(business_id):
+                return business_sk
+            else:
+                logger.error(f"Redis Helper returned None for Business {business_id}")
+                return None
+        else:
+            logger.error("Business not found")
+            return None
+
+    except Exception as e:
+        logger.error(f"Exception {e} occurred while running get_business_sk")
 
 
 def get_user_id() -> int | None:
