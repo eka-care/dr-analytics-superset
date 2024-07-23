@@ -333,9 +333,10 @@ def check_sess_token():
                 session_user = db.session.query(User).filter(User.id == session_user_id).one_or_none()
                 session_user_username = session_user.username
         if referrer and ('analytics-business' in referrer or 'desk.eka.care' in referrer) and b_id:
+            # Allowing doctor's having businesses to access desk dashboards
             token_user_username = b_id + '@dummyanalytics.com'
-        # Allowing business id in sql labs for Anusheel's account only
         elif referrer and 'eka.care/sqllab/' in referrer and doc_id == '161419272566611' and b_id:
+            # Allowing business id in sql labs for Anusheel's account only
             token_user_username = b_id + '@dummyanalytics.com'
         else:
             token_user_username = doc_id+'@dummyanalytics.com'
