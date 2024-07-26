@@ -335,7 +335,7 @@ def check_sess_token():
         if referrer and ('analytics-business' in referrer or 'desk.eka.care' in referrer) and b_id:
             # Allowing doctor's having businesses to access desk dashboards
             token_user_username = b_id + '@dummyanalytics.com'
-        elif referrer and 'eka.care/sqllab/' in referrer and doc_id == '161419272566611' and b_id:
+        elif doc_id == '161419272566611' and b_id:
             # Allowing business id in sql labs for Anusheel's account only
             token_user_username = b_id + '@dummyanalytics.com'
         else:
