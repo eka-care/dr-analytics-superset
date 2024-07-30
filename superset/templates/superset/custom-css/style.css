@@ -1,0 +1,46 @@
+/* Media query for screens smaller than 480px */
+@media only screen and (max-width: 480px) {
+  .grid-row {
+    display: block;
+  }
+
+  .grid-row > div {
+    margin-right: 0px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .grid-row > div:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .grid-row > div > div {
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  .superset-legacy-chart-big-number > div {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  [data-test="filter-bar"] > div {
+    flex-direction: column !important;
+  }
+
+  [data-test="filter-bar"] > div > div {
+    margin: auto !important;
+  }
+
+  [data-test="filter-bar"] > div {
+    row-gap: 12px !important;
+  }
+
+  .chart-slice > *:first-child {
+    flex-wrap: wrap !important;
+    row-gap: 4px !important;
+  }
+
+  .ant-popover {
+    width: auto !important;
+  }
+}
