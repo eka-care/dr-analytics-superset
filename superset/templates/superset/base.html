@@ -16,7 +16,7 @@ type="{{favicon.type if favicon.type else "image/png"}}" {% if favicon.sizes
 %}sizes={{favicon.sizes}}{% endif %} href="{{ "" if
 favicon.href.startswith("http") else assets_prefix }}{{favicon.href}}" > {%
 endfor %} {{ css_bundle("theme") }}
-<link rel="stylesheet" type="text/css" href="/static/assets/images/style.css" />
+<link rel="stylesheet" type="text/css" href="/static/assets/css/style.css" />
 {% endblock %} {% block head_js %} {{ super() }} {{ js_bundle("theme") }} {%
 endblock %} {% block tail_js %} {{ super() }} {{ js_bundle("preamble") }} {{
 js_bundle('menu') }} {% include "tail_js_custom_extra.html" %} {% endblock %}
