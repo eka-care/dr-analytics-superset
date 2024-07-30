@@ -2,5 +2,7 @@ ARG UPSTREAM_VERSION
 
 FROM apachesuperset.docker.scarf.sh/apache/superset:${UPSTREAM_VERSION}
 COPY --chown=superset superset-frontend/src/assets/images/superset-logo-horiz.png /app/superset/static/assets/images/superset-logo-horiz.png
+# add css style
+COPY --chown=superset superset-frontend/src/assets/images/style.css /app/superset/static/assets/images/style.css
 COPY --chown=superset superset/ /app/superset/
 
