@@ -1284,7 +1284,7 @@ def get_business_id() -> str | None:
             return g.user.email.split("@")[0]
         else:
             logger.info("Non business id data called for get_business_id %s" % str(
-                g.user.first_name.lower()))
+                g.user.__dict__))
             return None
     except Exception:  # pylint: disable=broad-except
         return None
