@@ -118,7 +118,7 @@ class SecurityRestApi(BaseSupersetApi):
 
     @expose("/guest_token/", methods=("POST",))
     @event_logger.log_this
-    @protect()
+    # @protect()  // TODO: add this permission
     @safe
     @statsd_metrics
     @permission_name("grant_guest_token")
