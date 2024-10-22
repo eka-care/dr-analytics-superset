@@ -151,7 +151,6 @@ class SecurityRestApi(BaseSupersetApi):
               $ref: '#/components/responses/500'
         """
         try:
-            logger.info("===============Request json: ", request.json)
             body = guest_token_create_schema.load(request.json)
             self.appbuilder.sm.validate_guest_token_resources(body["resources"])
 
@@ -161,14 +160,10 @@ class SecurityRestApi(BaseSupersetApi):
             token = self.appbuilder.sm.create_guest_access_token(
                 body["user"], body["resources"], body["rls"]
             )
-            logger.info("===============Guest token created: ", token)
             return self.response(200, token=token)
         except EmbeddedDashboardNotFoundError as error:
-            logger.info("===============Error creating guest token, EmbeddedDashboardNotFoundError : ", error)
             return self.response_400(message=error.message)
         except ValidationError as error:
-            logger.info("===============Error creating guest token, ValidationError : ", error)
             return self.response_400(message=error.messages)
         except Exception as error:
-            logger.error("Error creating guest token", exc_info=True)
             return self.response_500(message=str(error))
