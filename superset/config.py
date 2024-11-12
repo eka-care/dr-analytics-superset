@@ -162,7 +162,7 @@ NATIVE_FILTER_DEFAULT_ROW_LIMIT = 1000
 FILTER_SELECT_ROW_LIMIT = 10000
 # default time filter in explore
 # values may be "Last day", "Last week", "<ISO date> : now", etc.
-DEFAULT_TIME_FILTER = NO_TIME_RANGE
+DEFAULT_TIME_FILTER = "Last month"
 
 # This is an important setting, and should be lower than your
 # [load balancer / proxy / envoy / kong / ...] timeout settings.
