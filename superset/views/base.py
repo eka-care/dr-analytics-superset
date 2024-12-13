@@ -336,7 +336,7 @@ def check_sess_token():
         if referrer and any(allowed in referrer for allowed in allowed_referrers) and b_id:
             # Allowing doctor's having businesses to access desk dashboards
             token_user_username = b_id + '@dummyanalytics.com'
-        elif doc_id in ['161419272566611', '172242399039978'] and b_id:
+        elif doc_id in ['161419272566611'] and b_id:
             # Allowing business id in sql labs for Anusheel's account only
             token_user_username = b_id + '@dummyanalytics.com'
         else:
