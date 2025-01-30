@@ -324,6 +324,7 @@ def check_sess_token():
         # print(f"=========token========={token}")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
+        oid = token.get("oid", "")
         b_id = token.get("b-id", "")
 
         session_user_username = None
@@ -335,6 +336,10 @@ def check_sess_token():
         allowed_referrers = ['analytics-business', 'analytics-business-desk', 'opd-business', 'desk.eka.care', '343f1e14-bc62-487f-8f5f-8318158100b3']
         if referrer and any(allowed in referrer for allowed in allowed_referrers) and b_id:
             # Allowing doctor's having businesses to access desk dashboards
+            token_user_username = b_id + '@dummyanalytics.com'
+        elif oid in ['173798203532545']:
+            # Defaulting to business for Lokesh's doctor account
+            print(f"=========Lokesh's oid========={oid} and business id={b_id}")
             token_user_username = b_id + '@dummyanalytics.com'
         elif doc_id in ['161419272566611', '170719938935011'] and b_id:
             # Allowing business id in sql labs for Anusheel's account only
