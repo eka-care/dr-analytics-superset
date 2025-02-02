@@ -341,7 +341,7 @@ def check_sess_token():
             # Defaulting to business for Lokesh's doctor account
             print(f"=========Lokesh's oid========={oid} and business id={b_id}")
             token_user_username = b_id + '@dummyanalytics.com'
-        elif doc_id in ['161419272566611', '170719938935011'] and b_id:
+        elif doc_id in ['161419272566611', '170719938935011', '172242399039978'] and b_id:
             # Allowing business id in sql labs for Anusheel's account only
             token_user_username = b_id + '@dummyanalytics.com'
         else:
