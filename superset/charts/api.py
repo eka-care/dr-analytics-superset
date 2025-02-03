@@ -107,8 +107,7 @@ class ChartRestApi(BaseSupersetModelRestApi):
     def upload_file_to_s3(self, file_data, bucket_name, s3_file_name):
         s3 = boto3.client('s3')
         try:
-            s3.upload_fileobj(file_data, bucket_name, s3_file_name,
-                              ExtraArgs={'ACL': 'public-read'})
+            s3.upload_fileobj(file_data, bucket_name, s3_file_name)
             s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_file_name}"
             return s3_url
         except NoCredentialsError:
