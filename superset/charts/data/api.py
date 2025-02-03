@@ -19,6 +19,8 @@ from __future__ import annotations
 import contextlib
 import logging
 from typing import Any, TYPE_CHECKING
+import io
+import jwt
 
 from flask import current_app, g, make_response, request, Response
 from flask_appbuilder.api import expose, protect
@@ -54,6 +56,9 @@ from superset.utils.core import (
 from superset.utils.decorators import logs_context
 from superset.views.base import CsvResponse, generate_download_headers, XlsxResponse
 from superset.views.base_api import statsd_metrics
+
+import boto3
+from botocore.exceptions import NoCredentialsError
 
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
@@ -174,7 +179,7 @@ class ChartDataRestApi(ChartRestApi):
             form_data = {}
 
         return self._get_data_response(
-            command=command, form_data=form_data, datasource=query_context.datasource
+            command=command, form_data=form_data, datasource=query_context.datasource, oid=""
         )
 
     @expose("/data", methods=("POST",))
@@ -224,6 +229,18 @@ class ChartDataRestApi(ChartRestApi):
               $ref: '#/components/responses/500'
         """
         json_body = None
+        oid = ""
+        try:
+            cookie_header = request.headers.get("Cookie", "")
+            # Parse cookies into a dictionary
+            cookies = {kv.split("=")[0]: "=".join(kv.split("=")[1:]) for kv in
+                       cookie_header.split("; ") if "=" in kv}
+            # Extract the 'sess' value
+            sess_token = cookies.get("sess", None)
+            decoded = jwt.decode(sess_token, options={"verify_signature": False})
+            oid = decoded.get('oid')
+        except Exception as e:
+            print("=====exception===", str(e))
         if request.is_json:
             json_body = request.json
         elif request.form.get("form_data"):
@@ -257,7 +274,7 @@ class ChartDataRestApi(ChartRestApi):
             return self._run_async(json_body, command)
         form_data = json_body.get("form_data")
         return self._get_data_response(
-            command, form_data=form_data, datasource=query_context.datasource
+            command, form_data=form_data, datasource=query_context.datasource, oid=oid
         )
 
     @expose("/data/<cache_key>", methods=("GET",))
@@ -342,11 +359,17 @@ class ChartDataRestApi(ChartRestApi):
         result = async_command.run(form_data, get_user_id())
         return self.response(202, **result)
 
+    def upload(self, data, headers):
+        bucket_name = 'm-prod-superset-download'
+        s3_file_name = headers.get("Content-Disposition")
+        return self.generate_s3_response(data, headers, bucket_name, s3_file_name)
+
     def _send_chart_response(
         self,
         result: dict[Any, Any],
         form_data: dict[str, Any] | None = None,
         datasource: BaseDatasource | Query | None = None,
+        oid: str = "",
     ) -> Response:
         result_type = result["query_context"].result_type
         result_format = result["query_context"].result_format
@@ -375,8 +398,17 @@ class ChartDataRestApi(ChartRestApi):
                 data = result["queries"][0]["data"]
                 if is_csv_format:
                     return CsvResponse(data, headers=generate_download_headers("csv"))
-
-                return XlsxResponse(data, headers=generate_download_headers("xlsx"))
+                if oid and oid == "161459684229004":
+                    if is_csv_format:
+                        format = "csv"
+                    else:
+                        format = "xlsx"
+                    file_data = io.BytesIO(json.dumps(data).encode('utf-8'))
+                    headers = generate_download_headers(format)
+                    self.upload(file_data, headers)
+                else:
+                    # replace with condition to check for data size and upload to S3 only when xceeds 10 MB
+                    return XlsxResponse(data, headers=generate_download_headers("xlsx"))
 
             # return multi-query results bundled as a zip file
             def _process_data(query_data: Any) -> Any:
@@ -413,6 +445,7 @@ class ChartDataRestApi(ChartRestApi):
         force_cached: bool = False,
         form_data: dict[str, Any] | None = None,
         datasource: BaseDatasource | Query | None = None,
+        oid: str = "",
     ) -> Response:
         try:
             result = command.run(force_cached=force_cached)
@@ -421,7 +454,7 @@ class ChartDataRestApi(ChartRestApi):
         except ChartDataQueryFailedError as exc:
             return self.response_400(message=exc.message)
 
-        return self._send_chart_response(result, form_data, datasource)
+        return self._send_chart_response(result, form_data, datasource, oid)
 
     # pylint: disable=invalid-name
     def _load_query_context_form_from_cache(self, cache_key: str) -> dict[str, Any]:

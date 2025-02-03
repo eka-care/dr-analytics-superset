@@ -21,6 +21,8 @@ from io import BytesIO
 from typing import Any, cast, Optional
 from zipfile import is_zipfile, ZipFile
 
+import boto3
+from botocore.exceptions import NoCredentialsError
 from flask import redirect, request, Response, send_file, url_for
 from flask_appbuilder.api import expose, protect, rison, safe
 from flask_appbuilder.hooks import before_request
@@ -101,6 +103,32 @@ class ChartRestApi(BaseSupersetModelRestApi):
 
     resource_name = "chart"
     allow_browser_login = True
+
+    def upload_file_to_s3(self, file_data, bucket_name, s3_file_name):
+        s3 = boto3.client('s3')
+        try:
+            s3.upload_fileobj(file_data, bucket_name, s3_file_name,
+                              ExtraArgs={'ACL': 'public-read'})
+            s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_file_name}"
+            return s3_url
+        except NoCredentialsError:
+            return None
+
+    def generate_s3_response(self, file_data, headers, bucket_name, s3_file_name):
+        s3_url = self.upload_file_to_s3(file_data, bucket_name, s3_file_name)
+        if s3_url:
+            return Response(
+                s3_url,
+                headers=headers,
+                mimetype="text/plain"
+            )
+        else:
+            return Response(
+                "Failed to upload file to S3",
+                status=500,
+                mimetype="text/plain"
+            )
+
 
     @before_request(only=["thumbnail", "screenshot", "cache_screenshot"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
