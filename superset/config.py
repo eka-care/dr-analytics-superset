@@ -747,10 +747,29 @@ IMG_UPLOAD_URL = "/static/uploads/"
 CACHE_DEFAULT_TIMEOUT = int(timedelta(days=1).total_seconds())
 
 # Default cache for Superset objects
-CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
+#CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
+# try out on preprod instance
+CACHE_CONFIG: CacheConfig = {
+    "CACHE_TYPE": "redis",
+    "CACHE_DEFAULT_TIMEOUT": 300,  # 5 minutes
+    "CACHE_KEY_PREFIX": "superset_",  # Prefix to avoid key conflicts
+    "CACHE_REDIS_HOST": "10.70.52.123",
+    "CACHE_REDIS_PORT": 6379,
+    "CACHE_REDIS_DB": 1,  # Change if needed
+    "CACHE_REDIS_URL": "redis://10.70.52.123:6379/0",  # Full Redis URL
+}
 
 # Cache for datasource metadata and query results
-DATA_CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
+#DATA_CACHE_CONFIG: CacheConfig = {"CACHE_TYPE": "NullCache"}
+DATA_CACHE_CONFIG: CacheConfig = {
+    "CACHE_TYPE": "redis",
+    "CACHE_DEFAULT_TIMEOUT": 300,  # 5 minutes
+    "CACHE_KEY_PREFIX": "superset_",  # Prefix to avoid key conflicts
+    "CACHE_REDIS_HOST": "10.70.52.125",
+    "CACHE_REDIS_PORT": 6379,
+    "CACHE_REDIS_DB": 0,  # Change if needed
+    "CACHE_REDIS_URL": "redis://10.70.52.125:6379/0",  # Full Redis URL
+}
 
 # Cache for dashboard filter state. `CACHE_TYPE` defaults to `SupersetMetastoreCache`
 # that stores the values in the key-value table in the Superset metastore, as it's
@@ -985,9 +1004,12 @@ CELERY_BEAT_SCHEDULER_EXPIRES = timedelta(weeks=1)
 
 
 class CeleryConfig:  # pylint: disable=too-few-public-methods
-    broker_url = "sqla+sqlite:///celerydb.sqlite"
+    broker_url = "redis://10.70.52.123:6379/0"
+    result_backend = "redis://10.70.52.123:6379/0"
+
+    #broker_url = "sqla+sqlite:///celerydb.sqlite"
     imports = ("superset.sql_lab", "superset.tasks.scheduler")
-    result_backend = "db+sqlite:///celery_results.sqlite"
+    #result_backend = "db+sqlite:///celery_results.sqlite"
     worker_prefetch_multiplier = 1
     task_acks_late = False
     task_annotations = {
@@ -1660,13 +1682,13 @@ GLOBAL_ASYNC_QUERY_MANAGER_CLASS = (
 )
 GLOBAL_ASYNC_QUERIES_REDIS_CONFIG = {
     "port": 6379,
-    "host": "127.0.0.1",
+    "host": "10.70.52.123",
     "password": "",
     "db": 0,
     "ssl": False,
 }
 GLOBAL_ASYNC_QUERIES_REDIS_STREAM_PREFIX = "async-events-"
-GLOBAL_ASYNC_QUERIES_REDIS_STREAM_LIMIT = 1000
+GLOBAL_ASYNC_QUERIES_REDIS_STREAM_LIMIT = 10000
 GLOBAL_ASYNC_QUERIES_REDIS_STREAM_LIMIT_FIREHOSE = 1000000
 GLOBAL_ASYNC_QUERIES_REGISTER_REQUEST_HANDLERS = True
 GLOBAL_ASYNC_QUERIES_JWT_COOKIE_NAME = "async-token"
@@ -1674,13 +1696,13 @@ GLOBAL_ASYNC_QUERIES_JWT_COOKIE_SECURE = False
 GLOBAL_ASYNC_QUERIES_JWT_COOKIE_SAMESITE: None | (Literal["None", "Lax", "Strict"]) = (
     None
 )
-GLOBAL_ASYNC_QUERIES_JWT_COOKIE_DOMAIN = None
-GLOBAL_ASYNC_QUERIES_JWT_SECRET = "test-secret-change-me"
+GLOBAL_ASYNC_QUERIES_JWT_COOKIE_DOMAIN = "dr-analytics.eka.care"
+GLOBAL_ASYNC_QUERIES_JWT_SECRET = "3994b594a961cea4496fd89613868c4744e3c583f27e4560f345b332febd00b1"
 GLOBAL_ASYNC_QUERIES_TRANSPORT: Literal["polling", "ws"] = "polling"
 GLOBAL_ASYNC_QUERIES_POLLING_DELAY = int(
-    timedelta(milliseconds=500).total_seconds() * 1000
+    timedelta(milliseconds=4000).total_seconds() * 1000
 )
-GLOBAL_ASYNC_QUERIES_WEBSOCKET_URL = "ws://127.0.0.1:8080/"
+GLOBAL_ASYNC_QUERIES_WEBSOCKET_URL = "ws://dr-analytics.eka.care/ws"
 
 # Users surrogate keys option
 USER_SK_REDIS_CONFIG = {

@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from __future__ import annotations
-
+import datetime
 import contextlib
 import logging
 from typing import Any, TYPE_CHECKING
@@ -240,7 +240,9 @@ class ChartDataRestApi(ChartRestApi):
             decoded = jwt.decode(sess_token, options={"verify_signature": False})
             oid = decoded.get('oid')
         except Exception as e:
-            print("=====exception===", str(e))
+            #print("=====exception===", str(e))
+            logger.error(f"=====exception==={e}")
+        # print("=====INSIDE FUNC=1=====", str(datetime.datetime.now()))
         if request.is_json:
             json_body = request.json
         elif request.form.get("form_data"):
@@ -252,6 +254,13 @@ class ChartDataRestApi(ChartRestApi):
 
         try:
             query_context = self._create_query_context_from_form(json_body)
+            try:
+                if query_context.result_format in ChartDataResultFormat.table_like():
+                    #print("=====INSIDE FUNC=2=====", str(datetime.datetime.now()))
+                    logger.info(f"=====INSIDE FUNC=2==={datetime.datetime.now()}==")
+            except Exception as e:
+                print("====INSIDE FUNC=2=exception===", str(e))
+
             command = ChartDataCommand(query_context)
             command.validate()
         except DatasourceNotFound:
@@ -265,13 +274,21 @@ class ChartDataRestApi(ChartRestApi):
                 )
             )
 
+        if query_context.result_format in ChartDataResultFormat.table_like():
+            logger.info(f"=====INSIDE FUNC=3==={datetime.datetime.now()}==")
+
+
         # TODO: support CSV, SQL query and other non-JSON types
+        # Always run async for download cases
         if (
             is_feature_enabled("GLOBAL_ASYNC_QUERIES")
             and query_context.result_format == ChartDataResultFormat.JSON
             and query_context.result_type == ChartDataResultType.FULL
         ):
-            return self._run_async(json_body, command)
+            logger.info("======running async======")
+            x = self._run_async(json_body, command)
+            logger.info("======running async=resp=====")
+            return x
         form_data = json_body.get("form_data")
         return self._get_data_response(
             command, form_data=form_data, datasource=query_context.datasource, oid=oid
@@ -344,7 +361,9 @@ class ChartDataRestApi(ChartRestApi):
         # First, look for the chart query results in the cache.
         with contextlib.suppress(ChartDataCacheLoadError):
             result = command.run(force_cached=True)
+            logger.info(f"======result_format command.run return===={datetime.datetime.now()}")
             if result is not None:
+                logger.info(f"======result_format result is not None===={datetime.datetime.now()}")
                 return self._send_chart_response(result)
         # Otherwise, kick off a background job to run the chart query.
         # Clients will either poll or be notified of query completion,
@@ -356,7 +375,9 @@ class ChartDataRestApi(ChartRestApi):
         except AsyncQueryTokenException:
             return self.response_401()
 
+        logger.info(f"======result_format before async_command.run===={datetime.datetime.now()}")
         result = async_command.run(form_data, get_user_id())
+        logger.info(f"======result_format after async_command.run===={datetime.datetime.now()}")
         return self.response(202, **result)
 
     def upload(self, data, headers):
@@ -374,7 +395,8 @@ class ChartDataRestApi(ChartRestApi):
         result_type = result["query_context"].result_type
         result_format = result["query_context"].result_format
 
-        # print("======result and form_data in _send_chart_response=====", str(result), str(form_data))
+        #print("======result_format=====", result_format, str(datetime.datetime.now()))
+        logger.info(f"======result_format==={result_format}=={datetime.datetime.now()}")
         # Post-process the data so it matches the data presented in the chart.
         # This is needed for sending reports based on text charts that do the
         # post-processing of data, eg, the pivot table.
@@ -396,19 +418,36 @@ class ChartDataRestApi(ChartRestApi):
             if len(result["queries"]) == 1:
                 # return single query results
                 data = result["queries"][0]["data"]
-                if is_csv_format:
-                    return CsvResponse(data, headers=generate_download_headers("csv"))
-                if oid and oid == "161459684229004":
+                data_size = len(data.encode('utf-8')) if isinstance(data, str) else len(
+                    data)
+                if data_size > 10 * 1024 * 1024:  # 10 MB
                     if is_csv_format:
                         format = "csv"
                     else:
                         format = "xlsx"
-                    file_data = io.BytesIO(json.dumps(data).encode('utf-8'))
+                    #print("=======format1=======", format, str(datetime.datetime.now()))
+                    logger.info(f"=======format1===={format}==={datetime.datetime.now()}")
+                    if is_csv_format:
+                        if isinstance(data, str):  # Convert string to bytes only if needed
+                            file_data = io.BytesIO(data.encode('utf-8'))
+                        else:
+                            file_data = io.BytesIO(data)  # If already bytes, use as is
+                    else:
+                        if isinstance(data, str):
+                            file_data = io.BytesIO(data.encode("utf-8"))  # Convert string to bytes
+                        else:
+                            file_data = io.BytesIO(data)  # Wrap bytes in BytesIO
+                        #file_data = io.BytesIO(data)
+                    logger.info(f"=======format2==={format}===={datetime.datetime.now()}")
                     headers = generate_download_headers(format)
-                    self.upload(file_data, headers)
+                    logger.info(f"=======format3==={format}===={datetime.datetime.now()}")
+                    return self.upload(file_data, headers)
                 else:
-                    # replace with condition to check for data size and upload to S3 only when xceeds 10 MB
-                    return XlsxResponse(data, headers=generate_download_headers("xlsx"))
+                    if is_csv_format:
+                        return CsvResponse(data, headers=generate_download_headers("csv"))
+                    else:
+                        # replace with condition to check for data size and upload to S3 only when xceeds 10 MB
+                        return XlsxResponse(data, headers=generate_download_headers("xlsx"))
 
             # return multi-query results bundled as a zip file
             def _process_data(query_data: Any) -> Any:

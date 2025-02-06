@@ -93,6 +93,7 @@ from superset.views.base_api import (
     statsd_metrics,
 )
 from superset.views.filters import BaseFilterRelatedUsers, FilterRelatedOwners
+from botocore.config import Config
 
 logger = logging.getLogger(__name__)
 config = app.config
@@ -105,21 +106,42 @@ class ChartRestApi(BaseSupersetModelRestApi):
     allow_browser_login = True
 
     def upload_file_to_s3(self, file_data, bucket_name, s3_file_name):
-        s3 = boto3.client('s3')
+        s3 = boto3.client(
+                's3',
+                region_name='ap-south-1',  # Specify correct region
+                config=Config(signature_version='s3v4')
+        )
         try:
+            file_data.seek(0)
             s3.upload_fileobj(file_data, bucket_name, s3_file_name)
-            s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_file_name}"
-            return s3_url
+            # Generate presigned URL with AWS4 signature
+            presigned_url = s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': bucket_name,
+                    'Key': s3_file_name,
+                    'ResponseContentDisposition': f'attachment; filename="{s3_file_name}"'
+                },
+                ExpiresIn=3600,  # URL expires in 1 hour
+            )
+            return presigned_url
         except NoCredentialsError:
             return None
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return None
+
 
     def generate_s3_response(self, file_data, headers, bucket_name, s3_file_name):
         s3_url = self.upload_file_to_s3(file_data, bucket_name, s3_file_name)
         if s3_url:
+            logger.info(f"===========s3_url===={s3_url}======")
+            headers['Location'] = s3_url
             return Response(
                 s3_url,
                 headers=headers,
-                mimetype="text/plain"
+                status=302,
+                mimetype='text/plain'
             )
         else:
             return Response(

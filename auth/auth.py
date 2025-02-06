@@ -10,7 +10,7 @@ def lambda_handler(event, context):
         doc_id = token.get("doc-id", "")
     if token and doc_id:
         # redirect forward to dr superset
-
+        pass
     else:
         # redirect to login on dr.eka.care
         return {

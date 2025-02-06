@@ -296,7 +296,7 @@ def check_sess_token():
 
     token = request.headers.get("jwt-payload")
     referrer = request.headers.get("Referer")
-    print(f"========referrer========={referrer}")
+    #print(f"========referrer========={referrer}")
     guest_token = request.headers.get("X-Guesttoken")
     # print(f"========guest_token========={guest_token}")
 
@@ -308,7 +308,7 @@ def check_sess_token():
         guest_token_decoded = security_manager.pyjwt_for_guest_token.decode(
             guest_token, secret, algorithms=[algo], audience=audience
         )
-        print(f"=========guest_token_decoded========={guest_token_decoded}")
+        #print(f"=========guest_token_decoded========={guest_token_decoded}")
         doc_id = guest_token_decoded.get("user", "").get("username", "")
         if doc_id:
             guest_user_username = doc_id + '@dummyanalytics.com'
@@ -339,7 +339,7 @@ def check_sess_token():
             token_user_username = b_id + '@dummyanalytics.com'
         elif oid in ['173798203532545']:
             # Defaulting to business for Lokesh's doctor account
-            print(f"=========Lokesh's oid========={oid} and business id={b_id}")
+            #print(f"=========Lokesh's oid========={oid} and business id={b_id}")
             token_user_username = b_id + '@dummyanalytics.com'
         elif doc_id in ['161419272566611', '170719938935011', '172242399039978'] and b_id:
             # Allowing business id in sql labs for Anusheel's account only
