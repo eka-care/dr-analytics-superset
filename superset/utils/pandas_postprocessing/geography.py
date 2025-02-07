@@ -16,7 +16,7 @@
 # under the License.
 from typing import Optional
 
-import pygeohash as geohash_lib
+import geohash as geohash_lib
 from flask_babel import gettext as _
 from geopy.point import Point
 from pandas import DataFrame
