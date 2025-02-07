@@ -332,7 +332,7 @@ class ChartDataRestApi(ChartRestApi):
             'accept': 'application/json',
             'Content-Type': 'application/json'
         }
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, data=payload)
         logger.info(f"=====response from BNB API==={response.text}===")
 
         if str(response.status_code).startswith("2"):
