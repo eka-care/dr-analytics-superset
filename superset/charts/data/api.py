@@ -295,6 +295,8 @@ class ChartDataRestApi(ChartRestApi):
             logger.info("======running async=resp=====")
             return x
 
+        form_data = json_body.get("form_data")
+
         if query_context.result_format in ChartDataResultFormat.table_like() and query_context.form_data.get('slice_id') in ASYNC_DOWNLOAD_CHART_IDS:
             # Eka special Async Download case
             # Lokesh BnB API Call
@@ -303,30 +305,37 @@ class ChartDataRestApi(ChartRestApi):
                 dataset_id = int(datasource.split("__")[0])
                 # Call BNB API to Download
 
-                resp_json = self.start_async_download(dataset_id, user_sk, oid)
+
+                url_params = form_data.get("url_params", {})
+                start = url_params.get("start", "")
+                end = url_params.get("end", "")
+
+                resp_json = self.start_async_download(dataset_id, user_sk, oid, start, end)
                 if resp_json:
                     return self.response(202, **resp_json)
                 else:
                     # Should mean API has failed - that's how bnb async download API is written
                     return self.response(400, message="Error in Requesting Download")
 
-        form_data = json_body.get("form_data")
+
         return self._get_data_response(
             command, form_data=form_data, datasource=query_context.datasource, oid=oid
         )
 
-    def start_async_download(self, dataset_id, user_sk, oid)  -> dict[str, Any]:
+    def start_async_download(self, dataset_id, user_sk, oid, start, end)  -> dict[str, Any]:
         # {
         #     "dataset_id": "164",
         #     "slice_id": "3218",
         #     "user_sk": "50966",
         #     "oid": "161467756044203"
         # }
-        url = "http://bnb.orbi.orbi/api/download_analytics"
+        url = "http://bnb.orbi.orbi/api/download_analytics/"
         payload = json.dumps({
             "dataset_id": dataset_id,
             "user_sk": user_sk,
-            "oid": oid
+            "oid": oid,
+            "start": start,
+            "end": end
         })
         headers = {
             'accept': 'application/json',
