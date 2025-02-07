@@ -322,7 +322,7 @@ class ChartDataRestApi(ChartRestApi):
         #     "user_sk": "50966",
         #     "oid": "161467756044203"
         # }
-        url = "http://bnb.orbi.orbi/api/download_analytics/"
+        url = "http://bnb.orbi.orbi/api/download_analytics"
         payload = json.dumps({
             "dataset_id": dataset_id,
             "user_sk": user_sk,
