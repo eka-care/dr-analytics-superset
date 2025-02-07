@@ -21,6 +21,7 @@ import logging
 from typing import Any, TYPE_CHECKING
 import io
 import jwt
+import requests
 
 from flask import current_app, g, make_response, request, Response
 from flask_appbuilder.api import expose, protect
@@ -52,6 +53,7 @@ from superset.utils.core import (
     create_zip,
     DatasourceType,
     get_user_id,
+    get_user_sk,
 )
 from superset.utils.decorators import logs_context
 from superset.views.base import CsvResponse, generate_download_headers, XlsxResponse
@@ -65,6 +67,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+ASYNC_DOWNLOAD_CHART_IDS = [3218]
 
 class ChartDataRestApi(ChartRestApi):
     include_route_methods = {"get_data", "data", "data_from_cache"}
@@ -230,7 +233,9 @@ class ChartDataRestApi(ChartRestApi):
         """
         json_body = None
         oid = ""
+        user_sk = ""
         try:
+            user_sk = get_user_sk()
             cookie_header = request.headers.get("Cookie", "")
             # Parse cookies into a dictionary
             cookies = {kv.split("=")[0]: "=".join(kv.split("=")[1:]) for kv in
@@ -289,10 +294,53 @@ class ChartDataRestApi(ChartRestApi):
             x = self._run_async(json_body, command)
             logger.info("======running async=resp=====")
             return x
+
+        if query_context.result_format in ChartDataResultFormat.table_like() and query_context.form_data.get('slice_id') in ASYNC_DOWNLOAD_CHART_IDS:
+            # Eka special Async Download case
+            # Lokesh BnB API Call
+            datasource = query_context.form_data.get('datasource')
+            if datasource and datasource.split("__")[0]:
+                dataset_id = int(datasource.split("__")[0])
+                # Call BNB API to Download
+
+                resp_json = self.start_async_download(dataset_id, user_sk, oid)
+                if resp_json:
+                    return self.response(202, **resp_json)
+                else:
+                    # Should mean API has failed - that's how bnb async download API is written
+                    return self.response(400, message="Error in Requesting Download")
+
         form_data = json_body.get("form_data")
         return self._get_data_response(
             command, form_data=form_data, datasource=query_context.datasource, oid=oid
         )
+
+    def start_async_download(self, dataset_id, user_sk, oid)  -> dict[str, Any]:
+        # {
+        #     "dataset_id": "164",
+        #     "slice_id": "3218",
+        #     "user_sk": "50966",
+        #     "oid": "161467756044203"
+        # }
+        url = "http://bnb.orbi.orbi/api/download_analytics/"
+        payload = json.dumps({
+            "dataset_id": dataset_id,
+            "user_sk": user_sk,
+            "oid": oid
+        })
+        headers = {
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        logger.info(f"=====response from BNB API==={response.text}===")
+
+        if str(response.status_code).startswith("2"):
+            return response.json()
+        else:
+            logger.error(f"Error calling Async Download API: {response.text}")
+            return {}
+
 
     @expose("/data/<cache_key>", methods=("GET",))
     @protect()
