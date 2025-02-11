@@ -67,7 +67,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-ASYNC_DOWNLOAD_CHART_IDS = [3218]
 
 class ChartDataRestApi(ChartRestApi):
     include_route_methods = {"get_data", "data", "data_from_cache"}
@@ -297,7 +296,7 @@ class ChartDataRestApi(ChartRestApi):
 
         form_data = json_body.get("form_data")
 
-        if query_context.result_format in ChartDataResultFormat.table_like() and query_context.form_data.get('slice_id') in ASYNC_DOWNLOAD_CHART_IDS:
+        if query_context.result_format in ChartDataResultFormat.table_like():
             # Eka special Async Download case
             # Lokesh BnB API Call
             datasource = query_context.form_data.get('datasource')
