@@ -23,7 +23,7 @@ import io
 import jwt
 import requests
 
-from flask import current_app, g, make_response, request, Response
+from flask import current_app, g, make_response, request, Response, render_template
 from flask_appbuilder.api import expose, protect
 from flask_babel import gettext as _
 from marshmallow import ValidationError
@@ -312,7 +312,9 @@ class ChartDataRestApi(ChartRestApi):
 
                 resp_json = self.start_async_download(dataset_id, user_sk, oid, start, end)
                 if resp_json:
-                    return self.response(202, **resp_json)
+                    html_content = render_template('superset/status_loader.html', task_id=resp_json['task_id'])
+                    return Response(html_content, status=200, mimetype='text/html')
+                    #return self.response(202, **resp_json)
                 else:
                     # Should mean API has failed - that's how bnb async download API is written
                     return self.response(400, message="Error in Requesting Download")
