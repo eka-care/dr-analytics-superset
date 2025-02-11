@@ -18,7 +18,7 @@ from __future__ import annotations
 import datetime
 import contextlib
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Tuple
 import io
 import jwt
 import requests
@@ -313,8 +313,8 @@ class ChartDataRestApi(ChartRestApi):
                 start = url_params.get("start", "")
                 end = url_params.get("end", "")
 
-                resp_json = self.start_async_download(dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)
-                if resp_json:
+                resp_json, status = self.start_async_download(dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)
+                if status:
                     html_content = render_template('superset/status_loader.html',
                                                    task_id=resp_json['task_id'],
                                                    email=resp_json['email'])
@@ -322,14 +322,16 @@ class ChartDataRestApi(ChartRestApi):
                     #return self.response(202, **resp_json)
                 else:
                     # Should mean API has failed - that's how bnb async download API is written
-                    return self.response(400, message="Error in Requesting Download")
+                    err = resp_json.get("error", "Unknown Error")
+                    return self.response(400, message=err)
 
 
         return self._get_data_response(
             command, form_data=form_data, datasource=query_context.datasource, oid=oid
         )
 
-    def start_async_download(self, dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)  -> dict[str, Any]:
+    def start_async_download(self, dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)  -> \
+    tuple[Any, bool]:
         # {
         #     "dataset_id": "164",
         #     "slice_id": "3218",
@@ -355,10 +357,10 @@ class ChartDataRestApi(ChartRestApi):
         logger.info(f"=====response from BNB API==={response.text}===")
 
         if str(response.status_code).startswith("2"):
-            return response.json()
+            return response.json(), True
         else:
             logger.error(f"Error calling Async Download API: {response.text}")
-            return {}
+            return response.json(), False
 
 
     @expose("/data/<cache_key>", methods=("GET",))
