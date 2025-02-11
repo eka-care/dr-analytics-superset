@@ -53,7 +53,7 @@ from superset.utils.core import (
     create_zip,
     DatasourceType,
     get_user_id,
-    get_user_sk,
+    get_user_sk, get_business_sk,
 )
 from superset.utils.decorators import logs_context
 from superset.views.base import CsvResponse, generate_download_headers, XlsxResponse
@@ -233,8 +233,10 @@ class ChartDataRestApi(ChartRestApi):
         json_body = None
         oid = ""
         user_sk = ""
+        business_sk = ""
         try:
             user_sk = get_user_sk()
+            business_sk = get_business_sk()
             cookie_header = request.headers.get("Cookie", "")
             # Parse cookies into a dictionary
             cookies = {kv.split("=")[0]: "=".join(kv.split("=")[1:]) for kv in
@@ -301,7 +303,8 @@ class ChartDataRestApi(ChartRestApi):
             # Lokesh BnB API Call
             datasource = query_context.form_data.get('datasource')
             if datasource and datasource.split("__")[0]:
-                slice_id = query_context.form_data.get('slice_id')
+                slice_id = query_context.form_data.get('slice_id', '')
+                dashboard_id = query_context.form_data.get('dashboardId', '')
                 dataset_id = int(datasource.split("__")[0])
                 # Call BNB API to Download
 
@@ -310,7 +313,7 @@ class ChartDataRestApi(ChartRestApi):
                 start = url_params.get("start", "")
                 end = url_params.get("end", "")
 
-                resp_json = self.start_async_download(dataset_id, slice_id, user_sk, oid, start, end)
+                resp_json = self.start_async_download(dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)
                 if resp_json:
                     html_content = render_template('superset/status_loader.html',
                                                    task_id=resp_json['task_id'],
@@ -326,7 +329,7 @@ class ChartDataRestApi(ChartRestApi):
             command, form_data=form_data, datasource=query_context.datasource, oid=oid
         )
 
-    def start_async_download(self, dataset_id, slice_id, user_sk, oid, start, end)  -> dict[str, Any]:
+    def start_async_download(self, dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)  -> dict[str, Any]:
         # {
         #     "dataset_id": "164",
         #     "slice_id": "3218",
@@ -338,6 +341,8 @@ class ChartDataRestApi(ChartRestApi):
             "dataset_id": dataset_id,
             "slice_id": slice_id,
             "user_sk": user_sk,
+            "business_sk": business_sk,
+            "dashboard_id": dashboard_id,
             "oid": oid,
             "start": start,
             "end": end
