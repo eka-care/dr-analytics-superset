@@ -2,39 +2,206 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Status Loader</title>
+    <title>Download Status</title>
     <style>
-        /* Add your CSS styles for the loader here */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 1rem;
+        }
+
         .loader {
-            border: 16px solid #f3f3f3;
+            position: absolute;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
-            cursor: pointer;
+            border: 4px solid transparent;
+            border-top-color: #3498db;
+            border-right-color: #3498db;
+        }
+
+        .spinning {
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        .loader.spinning:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #2ecc71;
+            border-right-color: #2ecc71;
+            animation: spin 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
+        }
+
+        .loader.spinning:after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #e74c3c;
+            border-right-color: #e74c3c;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .status-container {
+            margin-top: 1rem;
+            padding: 1rem 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status-text {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .email-text {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .success { color: #2ecc71; }
+        .error { color: #e74c3c; }
+        .pending { color: #3498db; }
+
+        .check-button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .check-button:hover {
+            background-color: #2980b9;
+        }
+
+        .check-button:active {
+            transform: scale(0.98);
+        }
     </style>
     <script>
-        function checkStatus(taskId) {
-            fetch(`http://bnb.int.eka.care/api/check-status?task_id=${taskId}`)
+        function checkStatus(taskId, email) {
+            const statusContainer = document.querySelector('.status-container');
+            const statusText = document.getElementById('status');
+            const loader = document.querySelector('.loader');
+
+            // Start the loader spinning
+            loader.classList.add('spinning');
+
+            // Add pulse animation when checking status
+            statusContainer.classList.add('pulse');
+            statusText.className = 'status-text pending';
+            statusText.textContent = 'Checking status...';
+
+	    fetch(`https://bnb.int.eka.care/api/check-status/?task_id=${taskId}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Status:', data);
-                    // Update the page with the status information
-                    document.getElementById('status').innerText = data.status;
+                    statusContainer.classList.remove('pulse');
+                    updateStatus(data.status, email);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    statusContainer.classList.remove('pulse');
+                    statusText.className = 'status-text error';
+                    statusText.textContent = 'Error checking status. Please try again.';
+                    loader.classList.remove('spinning');
+                });
+        }
+
+        function updateStatus(status, email) {
+            const statusContainer = document.querySelector('.status-container');
+            const statusText = document.getElementById('status');
+            const loader = document.querySelector('.loader');
+
+            // Clear any existing email text
+            const existingEmailText = document.querySelector('.email-text');
+            if (existingEmailText) {
+                existingEmailText.remove();
+            }
+
+            statusText.className = 'status-text';
+
+            switch(status.toLowerCase()) {
+                case 'success':
+                    statusText.classList.add('success');
+                    loader.classList.remove('spinning');
+                    statusText.textContent = 'Success!';
+
+                    // Add email confirmation
+                    const emailText = document.createElement('p');
+                    emailText.className = 'email-text';
+                    emailText.textContent = `Email sent successfully to ${email}`;
+                    statusContainer.appendChild(emailText);
+                    break;
+
+                case 'failed':
+                    statusText.classList.add('error');
+                    loader.classList.remove('spinning');
+                    statusText.textContent = 'Failed to process request';
+                    break;
+
+                default:
+                    statusText.classList.add('pending');
+                    statusText.textContent = `Status: ${status}`;
+            }
         }
     </script>
 </head>
 <body>
-    <div class="loader" onclick="checkStatus('{{ task_id }}')"></div>
-    <p id="status">Loading, please wait...</p>
+    <div class="loader-container">
+        <div class="loader spinning"></div>
+    </div>
+    <button class="check-button" onclick="checkStatus('{{ task_id }}','{{ email }}')">
+        Check Status
+    </button>
+    <div class="status-container">
+        <p id="status" class="status-text pending">Click the button to check status</p>
+    </div>
 </body>
 </html>

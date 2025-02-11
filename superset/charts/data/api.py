@@ -312,7 +312,9 @@ class ChartDataRestApi(ChartRestApi):
 
                 resp_json = self.start_async_download(dataset_id, user_sk, oid, start, end)
                 if resp_json:
-                    html_content = render_template('superset/status_loader.html', task_id=resp_json['task_id'])
+                    html_content = render_template('superset/status_loader.html',
+                                                   task_id=resp_json['task_id'],
+                                                   email=resp_json['email'])
                     return Response(html_content, status=200, mimetype='text/html')
                     #return self.response(202, **resp_json)
                 else:
