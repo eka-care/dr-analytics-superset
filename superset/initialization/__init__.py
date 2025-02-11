@@ -53,7 +53,6 @@ from superset.extensions import (
     talisman,
     redis_helper
 )
-from superset.extensions.custom_apis.api import CustomAPIView
 from superset.security import SupersetSecurityManager
 from superset.superset_typing import FlaskResponse
 from superset.tags.core import register_sqla_event_listeners
@@ -316,7 +315,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(TaggedObjectsModelView)
         appbuilder.add_view_no_menu(TagView)
         appbuilder.add_view_no_menu(ReportView)
-        appbuilder.add_view_no_menu(CustomAPIView)
 
         #
         # Add links

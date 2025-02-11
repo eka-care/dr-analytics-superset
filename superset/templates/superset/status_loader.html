@@ -139,9 +139,7 @@
             statusText.className = 'status-text pending';
             statusText.textContent = 'Checking status...';
 
-            const baseUrl = window.location.origin;
-
-	          fetch(`${baseUrl}/api/v1/task-status/endpoint/?task_id=${taskId}`)
+	    fetch(`https://bnb.int.eka.care/api/check-status/?task_id=${taskId}`)
                 .then(response => response.json())
                 .then(data => {
                     statusContainer.classList.remove('pulse');
