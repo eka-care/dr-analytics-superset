@@ -277,8 +277,14 @@ export const useExploreAdditionalActionsMenu = (
           setIsDropdownVisible(false);
           break;
         case MENU_KEYS.SHARE_BY_EMAIL:
-          shareByEmail();
+          exportCSV();
           setIsDropdownVisible(false);
+          dispatch(
+            logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
+              chartId: slice?.slice_id,
+              chartName: slice?.slice_name,
+            }),
+          );
           break;
         case MENU_KEYS.VIEW_QUERY:
           setIsDropdownVisible(false);
