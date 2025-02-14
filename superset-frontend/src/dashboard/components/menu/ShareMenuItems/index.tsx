@@ -84,7 +84,7 @@ const ShareMenuItems = (props: ShareMenuItemProps) => {
   }
 
   async function onShareByEmail() {
-    exportChart({formData, resultFormat: 'csv', resultType: 'full', force: true, ownState});
+    exportChart({formData: formData, resultFormat: 'csv', resultType: 'full', force: true, ownState:ownState});
   }
 
   return (
