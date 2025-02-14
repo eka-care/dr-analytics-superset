@@ -18,7 +18,7 @@
  */
 import { RefObject } from 'react';
 import copyTextToClipboard from 'src/utils/copy';
-import { t, logging } from '@superset-ui/core';
+import { t, logging, QueryFormData } from '@superset-ui/core';
 import { Menu } from 'src/components/Menu';
 import { getDashboardPermalink } from 'src/utils/urlUtils';
 import { MenuKeys, RootState } from 'src/dashboard/types';
@@ -38,8 +38,8 @@ interface ShareMenuItemProps {
   copyMenuItemRef?: RefObject<any>;
   shareByEmailMenuItemRef?: RefObject<any>;
   selectedKeys?: string[];
-  formData?: object;
-  ownState?: object;
+  formData?: QueryFormData;
+  ownState?: Record<string, any>;
 }
 
 const ShareMenuItems = (props: ShareMenuItemProps) => {
