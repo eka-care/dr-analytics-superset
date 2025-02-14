@@ -857,7 +857,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
               key => key === MenuKeys.CopyLink || key === MenuKeys.ShareByEmail,
             )}
             formData={props.formData}
-            
+            ownState={{}}
           />
         </Menu.SubMenu>
       )}
