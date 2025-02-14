@@ -261,7 +261,7 @@ class ChartDataRestApi(ChartRestApi):
         try:
             query_context = self._create_query_context_from_form(json_body)
             try:
-                if query_context.result_format in ChartDataResultFormat.table_like():
+                if query_context.result_format in ChartDataResultFormat.download_like():
                     #print("=====INSIDE FUNC=2=====", str(datetime.datetime.now()))
                     logger.info(f"=====INSIDE FUNC=2==={datetime.datetime.now()}==")
             except Exception as e:

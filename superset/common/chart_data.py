@@ -25,10 +25,15 @@ class ChartDataResultFormat(StrEnum):
     CSV = "csv"
     JSON = "json"
     XLSX = "xlsx"
+    Email = "email"
 
     @classmethod
     def table_like(cls) -> set["ChartDataResultFormat"]:
         return {cls.CSV} | {cls.XLSX}
+
+    @classmethod
+    def download_like(cls) -> set["ChartDataResultFormat"]:
+        return {cls.Email}
 
 
 class ChartDataResultType(StrEnum):
