@@ -23,6 +23,7 @@ import { Menu } from 'src/components/Menu';
 import { getDashboardPermalink } from 'src/utils/urlUtils';
 import { MenuKeys, RootState } from 'src/dashboard/types';
 import { useSelector } from 'react-redux';
+import { exportChart } from 'src/explore/exploreUtils';
 
 interface ShareMenuItemProps {
   url?: string;
@@ -37,6 +38,8 @@ interface ShareMenuItemProps {
   copyMenuItemRef?: RefObject<any>;
   shareByEmailMenuItemRef?: RefObject<any>;
   selectedKeys?: string[];
+  formData?: object;
+  ownState?: object;
 }
 
 const ShareMenuItems = (props: ShareMenuItemProps) => {
@@ -52,6 +55,8 @@ const ShareMenuItems = (props: ShareMenuItemProps) => {
     copyMenuItemRef,
     shareByEmailMenuItemRef,
     selectedKeys,
+    formData,
+    ownState,
     ...rest
   } = props;
   const { dataMask, activeTabs } = useSelector((state: RootState) => ({
@@ -79,16 +84,7 @@ const ShareMenuItems = (props: ShareMenuItemProps) => {
   }
 
   async function onShareByEmail() {
-    try {
-      const encodedBody = encodeURIComponent(
-        `${emailBody}${await generateUrl()}`,
-      );
-      const encodedSubject = encodeURIComponent(emailSubject);
-      window.location.href = `mailto:?Subject=${encodedSubject}%20&Body=${encodedBody}`;
-    } catch (error) {
-      logging.error(error);
-      addDangerToast(t('Sorry, something went wrong. Try again later.'));
-    }
+    exportChart({formData, resultFormat: 'csv', resultType: 'full', force: true, ownState});
   }
 
   return (
