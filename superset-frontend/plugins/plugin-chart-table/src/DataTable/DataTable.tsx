@@ -365,6 +365,7 @@ export default typedMemo(function DataTable<D extends object>({
           <div className="row">
             <div
               className={renderTimeComparisonDropdown ? 'col-sm-5' : 'col-sm-6'}
+              style={{ textAlign: 'left' }}
             >
               {hasPagination ? (
                 <SelectPageSize
