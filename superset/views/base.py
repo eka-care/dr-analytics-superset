@@ -345,7 +345,11 @@ def check_sess_token():
             # Allowing business id in sql labs for Anusheel's account only
             token_user_username = b_id + '@dummyanalytics.com'
         else:
-            token_user_username = doc_id+'@dummyanalytics.com'
+            if doc_id:
+                token_user_username = doc_id + '@dummyanalytics.com'
+            else:
+                token_user_username = oid + '@dummyanalytics.com'
+
         token_user = db.session.query(User).filter(User.username == token_user_username).one_or_none()
         if token_user:
             if token_user_username != session_user_username:
