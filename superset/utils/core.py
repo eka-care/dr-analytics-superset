@@ -1295,6 +1295,7 @@ def get_user_sk() -> str | None:
 
     try:
         if username := get_username():
+            logger.info(f"=====USERNAME==={username}==")
             if user_sk := redis_helper.get_key(username.split("@")[0]):
                 return user_sk
             else:
