@@ -314,6 +314,8 @@ class ChartDataRestApi(ChartRestApi):
                 end = url_params.get("end", "")
 
                 resp_json, status = self.start_async_download(dataset_id, slice_id, user_sk, business_sk, dashboard_id, oid, start, end)
+                logger.info(f"=====response from self.start_async_download==={resp_json}===")
+
                 if status:
                     html_content = render_template('superset/status_loader.html',
                                                    task_id=resp_json['task_id'],

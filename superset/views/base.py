@@ -295,6 +295,7 @@ def check_sess_token():
     from superset.extensions import security_manager
 
     token = request.headers.get("jwt-payload")
+    logger.info(f"=====token==={token}==")
     referrer = request.headers.get("Referer")
     #print(f"========referrer========={referrer}")
     guest_token = request.headers.get("X-Guesttoken")
@@ -309,11 +310,13 @@ def check_sess_token():
             guest_token, secret, algorithms=[algo], audience=audience
         )
         #print(f"=========guest_token_decoded========={guest_token_decoded}")
+        logger.info(f"=====guest_token_decoded==={guest_token_decoded}==")
         doc_id = guest_token_decoded.get("user", "").get("username", "")
         if doc_id:
             guest_user_username = doc_id + '@dummyanalytics.com'
             guest_user = db.session.query(User).filter(User.username == guest_user_username).one_or_none()
             # print(f"=========Guest User Dictionary========={guest_user.__dict__}")
+            logger.info(f"=====Guest User Dictionary==={guest_user.__dict__}==")
             if guest_user:
                 login_user(guest_user)
             else:
@@ -322,6 +325,7 @@ def check_sess_token():
 
     elif token and isinstance(token, str):
         # print(f"=========token========={token}")
+        logger.info(f"=====token==={token}==")
         token = json.loads(token)
         doc_id = token.get("doc-id", "")
         oid = token.get("oid", "")

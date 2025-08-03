@@ -5,4 +5,7 @@ COPY --chown=superset superset-frontend/src/assets/images/superset-logo-horiz.pn
 # add css style
 COPY --chown=superset superset-frontend/src/assets/css/style.css /app/superset/static/assets/css/style.css
 COPY --chown=superset superset/ /app/superset/
-
+RUN pip install newrelic
+COPY --chown=superset docker/newrelic.ini /app/superset/newrelic.ini
+COPY --chown=superset docker/run-server.sh /usr/bin/run-server.sh
+RUN chmod +x /usr/bin/run-server.sh
